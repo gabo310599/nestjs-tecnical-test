@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//Modelos base de datos Rick and Morty
+
+//Status Types Table
+model Status_Type{
+  id Int @id @default(autoincrement())
+  type_name String
+
+  status Status[]
+
+  @@map("status_types")
+}
+
+//Status Model
+model Status{
+  id Int @id @default(autoincrement())
+  status String
+
+  type Status_Type @relation(fields: [typeId], references: [id])
+  typeId Int
+  character Character[]
+  episode Episode[]
+
+  @@map("status")
+}
+
+//Category Types Model
+model Category_Type{
+  id Int @id @default(autoincrement())
+  type_name String
+
+  subcategory Subcategory[]
+
+  @@map("category_types")
+}
+
+//Subcategory Model
+model Subcategory{
+  id Int @id @default(autoincrement())
+  subcategory String
+
+  category Category_Type @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  character Character[]
+  episode Episode[]
+
+  @@map("subcategories")
+}
+
+//Character Model
+model Character{
+  id Int @id @default(autoincrement())
+  name String
+
+  status Status @relation(fields: [statusId], references: [id])
+  statusId Int
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int
+  character_episode_union Character_Episode_Union[]
+
+  @@map("characters")
+}
+
+//Episode Model
+model Episode{
+  id Int @id @default(autoincrement())
+  name String
+  init DateTime
+  finish DateTime
+
+  status Status @relation(fields: [statusId], references: [id])
+  statusId Int
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int
+  character_episode_union Character_Episode_Union[]
+
+  @@map("episodes")
+}
+
+//Character_Episode_Union Model 
+model Character_Episode_Union{
+  id Int @id @default(autoincrement())
+  init DateTime?
+  finish DateTime?
+
+  character Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  episode Episode @relation(fields: [episodeId], references: [id])
+  episodeId Int
+
+  @@map("characters_episodes_union")
+}
+
+
+
