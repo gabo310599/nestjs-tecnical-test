@@ -43,22 +43,22 @@ model Category_Type{
   id Int @id @default(autoincrement())
   type_name String
 
-  category Category[]
+  subcategory Subcategory[]
 
   @@map("category_types")
 }
 
-//Category Model
-model Category{
+//Subcategory Model
+model Subcategory{
   id Int @id @default(autoincrement())
-  status String
+  subcategory String
 
   category Category_Type @relation(fields: [categoryId], references: [id])
   categoryId Int
   character Character[]
   episode Episode[]
 
-  @@map("categories")
+  @@map("subcategories")
 }
 
 //Character Model
@@ -68,8 +68,8 @@ model Character{
 
   status Status @relation(fields: [statusId], references: [id])
   statusId Int
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int
   character_episode_union Character_Episode_Union[]
 
   @@map("characters")
@@ -84,8 +84,8 @@ model Episode{
 
   status Status @relation(fields: [statusId], references: [id])
   statusId Int
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  subcategory Subcategory @relation(fields: [subcategoryId], references: [id])
+  subcategoryId Int
   character_episode_union Character_Episode_Union[]
 
   @@map("episodes")

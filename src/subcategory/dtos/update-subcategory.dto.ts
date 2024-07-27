@@ -1,22 +1,22 @@
 /* eslint-disable prettier/prettier */
 import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator'
 
-export class UpdateStatusDto{
+export class UpdateSubcategoryDto{
     
     constructor(
-        status: string,
-        typeId: number,
+        subcategory: string,
+        categoryId: number,
     ){
-        this.status = status;
-        this.typeId = typeId
+        this.subcategory = subcategory;
+        this.categoryId = categoryId
     }
 
     @IsString()
     @IsNotEmpty()
-    status: string;
+    subcategory: string;
 
     @IsNumber()
     @IsNotEmpty()
     @IsOptional()
-    typeId: number;
+    categoryId: number;
 }

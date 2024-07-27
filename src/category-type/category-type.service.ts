@@ -10,7 +10,11 @@ export class CategoryTypeService {
 
     //Metodo que devuelve todos los tipos de categorias
     async getAll(){
-        const result = await this.prisma.category_Type.findMany();
+        const result = await this.prisma.category_Type.findMany({
+            include: {
+                subcategory: true,
+            },
+        });
         return {
             msg: 'Peticion correcta',
             data: result,
@@ -20,7 +24,12 @@ export class CategoryTypeService {
     //Metodo que devuelve un tipo de categoria segun el id
     async getOneById(id: number){
         
-        const result = await this.prisma.category_Type.findUnique({ where: { id }})
+        const result = await this.prisma.category_Type.findUnique({ 
+            where: { id },
+            include: {
+                subcategory: true,
+            },
+        })
 
         if(!result) throw new HttpException("Category type not found", 404)
 
