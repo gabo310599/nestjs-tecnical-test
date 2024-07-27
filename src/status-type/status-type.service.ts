@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -10,7 +10,11 @@ export class StatusTypeService {
 
     //Metodo que devuelve todos los tipos de status
     async getAll(){
-        const result = await this.prisma.status_Type.findMany();
+        const result = await this.prisma.status_Type.findMany({
+            include: {
+                status: true,
+            },
+        });
         return {
             msg: 'Peticion correcta',
             data: result,
@@ -20,9 +24,14 @@ export class StatusTypeService {
     //Metodo que devuelve un tipo de status segun el id
     async getOneById(id: number){
         
-        const result = await this.prisma.status_Type.findUnique({ where: { id }})
+        const result = await this.prisma.status_Type.findUnique({ 
+            where: { id },
+            include: {
+                status: true,
+            },
+        })
 
-        if(!result) throw new NotFoundException('El registro no existe');
+        if(!result) throw new HttpException("Status type not found", 404)
 
         return {
             msg: 'Peticion correcta',
@@ -62,7 +71,7 @@ export class StatusTypeService {
         try{
             const statusTypeExist = await this.prisma.status_Type.findUnique({ where: { id }})
 
-            if(!statusTypeExist) throw new NotFoundException('El registro no existe');
+            if(!statusTypeExist) throw new HttpException("Status type not found", 404)
 
             if(data.type_name){           
                 
@@ -92,7 +101,7 @@ export class StatusTypeService {
 
             const statusTypeExist = await this.prisma.status_Type.findUnique({ where: { id }})
 
-            if(!statusTypeExist) throw new NotFoundException('El registro no existe');
+            if(!statusTypeExist) throw new HttpException("Status type not found", 404)
 
             const result = await this.prisma.status_Type.delete({ where: {id}});
             return {

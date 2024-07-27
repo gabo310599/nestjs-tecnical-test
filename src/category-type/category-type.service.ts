@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
@@ -22,7 +22,7 @@ export class CategoryTypeService {
         
         const result = await this.prisma.category_Type.findUnique({ where: { id }})
 
-        if(!result) throw new NotFoundException('El registro no existe');
+        if(!result) throw new HttpException("Category type not found", 404)
 
         return {
             msg: 'Peticion correcta',
@@ -62,7 +62,7 @@ export class CategoryTypeService {
         try{
             const categoryTypeExist = await this.prisma.category_Type.findUnique({ where: { id }})
 
-            if(!categoryTypeExist) throw new NotFoundException('El registro no existe');
+            if(!categoryTypeExist) throw new HttpException("Category type not found", 404)
 
             if(data.type_name){           
                 
@@ -92,7 +92,7 @@ export class CategoryTypeService {
 
             const categoryTypeExist = await this.prisma.category_Type.findUnique({ where: { id }})
 
-            if(!categoryTypeExist) throw new NotFoundException('El registro no existe');
+            if(!categoryTypeExist) throw new HttpException("Category type not found", 404)
 
             const result = await this.prisma.category_Type.delete({ where: {id}});
             return {
