@@ -13,6 +13,8 @@ export class SubcategoryService {
         const result = await this.prisma.subcategory.findMany({
             include: {
                 category: true,
+                character: true,
+                episode: true,
             },
         });
         return {
@@ -47,7 +49,7 @@ export class SubcategoryService {
             if(data.subcategory){           
                 
                 const findSubcategory = await this.prisma.subcategory.findFirst({ 
-                    where: { subcategory: data.subcategory as string} 
+                    where: { subcategory: data.subcategory as string, categoryId: categoryId} 
                 });
                 
                 if(findSubcategory) throw new HttpException("Subcategory already exists", 400)
