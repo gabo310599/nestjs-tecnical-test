@@ -4,23 +4,23 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class StatusTypeService {
+export class CategoryTypeService {
 
     constructor(private readonly prisma: PrismaService){}
 
-    //Metodo que devuelve todos los tipos de status
+    //Metodo que devuelve todos los tipos de categorias
     async getAll(){
-        const result = await this.prisma.status_Type.findMany();
+        const result = await this.prisma.category_Type.findMany();
         return {
             msg: 'Peticion correcta',
             data: result,
         };
     }
 
-    //Metodo que devuelve un tipo de status segun el id
+    //Metodo que devuelve un tipo de categoria segun el id
     async getOneById(id: number){
         
-        const result = await this.prisma.status_Type.findUnique({ where: { id }})
+        const result = await this.prisma.category_Type.findUnique({ where: { id }})
 
         if(!result) throw new NotFoundException('El registro no existe');
 
@@ -30,22 +30,22 @@ export class StatusTypeService {
         };
     }
 
-    //Metodo que crea un tipo de status
-    async createOne(data: Prisma.Status_TypeCreateInput){
-        
+    //Metodo que crea un tipo de categoria
+    async createOne(data: Prisma.Category_TypeCreateInput){
+    
         try{
 
             if(data.type_name){           
                 
-                const findStatusType = await this.prisma.status_Type.findFirst({ 
+                const findCategoryType = await this.prisma.category_Type.findFirst({ 
                     where: { type_name: data.type_name as string} 
                 });
                 
-                if(findStatusType) throw new HttpException("Status type already exists", 400)
+                if(findCategoryType) throw new HttpException("Category type already exists", 400)
                 
             }
             
-            const result = await this.prisma.status_Type.create({ data });
+            const result = await this.prisma.category_Type.create({ data });
             return {
                 msg: 'Peticion correcta',
                 data: result,
@@ -56,25 +56,25 @@ export class StatusTypeService {
         } 
     }
 
-    //Metodo que actualiza un tipo de status
-    async updateOne(id: number, data: Prisma.Status_TypeUpdateInput){
+    //Metodo que actualiza un tipo de categoria
+    async updateOne(id: number, data: Prisma.Category_TypeUpdateInput){
 
         try{
-            const statusTypeExist = await this.prisma.status_Type.findUnique({ where: { id }})
+            const categoryTypeExist = await this.prisma.category_Type.findUnique({ where: { id }})
 
-            if(!statusTypeExist) throw new NotFoundException('El registro no existe');
+            if(!categoryTypeExist) throw new NotFoundException('El registro no existe');
 
             if(data.type_name){           
                 
-                const findStatusType = await this.prisma.status_Type.findFirst({ 
+                const findCategoryType = await this.prisma.category_Type.findFirst({ 
                     where: { type_name: data.type_name as string} 
                 });
                 
-                if(findStatusType) throw new HttpException("Status type already exists", 400)
+                if(findCategoryType) throw new HttpException("Category type already exists", 400)
                 
             }
 
-            const result = await this.prisma.status_Type.update({ where: {id}, data});
+            const result = await this.prisma.category_Type.update({ where: {id}, data});
             return {
                 msg: 'Peticion correcta',
                 data: result,
@@ -85,16 +85,16 @@ export class StatusTypeService {
         } 
     }
 
-    //Metodo que elimina un tipo de status
+    //Metodo que elimina un tipo de categoria
     async deleteOne(id: number){
         
         try{
 
-            const statusTypeExist = await this.prisma.status_Type.findUnique({ where: { id }})
+            const categoryTypeExist = await this.prisma.category_Type.findUnique({ where: { id }})
 
-            if(!statusTypeExist) throw new NotFoundException('El registro no existe');
+            if(!categoryTypeExist) throw new NotFoundException('El registro no existe');
 
-            const result = await this.prisma.status_Type.delete({ where: {id}});
+            const result = await this.prisma.category_Type.delete({ where: {id}});
             return {
                 msg: 'Peticion correcta',
                 data: result,
@@ -104,5 +104,4 @@ export class StatusTypeService {
             console.log(error.message)
         } 
     }
-
 }
