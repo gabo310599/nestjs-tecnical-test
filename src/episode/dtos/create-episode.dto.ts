@@ -1,23 +1,33 @@
 /* eslint-disable prettier/prettier */
 import { IsString, IsNotEmpty, IsNumber } from 'class-validator'
 
-export class CreateCharacterDto{
+export class CreateEpisodeDto{
     
     constructor(
         name: string,
-        subcategoryId: number,
+        init: string,
+        finish: string,
         statusId: number,
-        gennder: string,
+        subcategoryId: number,
     ){
         this.name = name;
+        this.init = init;
+        this.finish = finish;
         this.subcategoryId = subcategoryId;
         this.statusId = statusId;
-        this.gender = gennder;
     }
 
     @IsString()
     @IsNotEmpty()
     name: string;
+
+    @IsString()
+    @IsNotEmpty()
+    init: string;
+
+    @IsString()
+    @IsNotEmpty()
+    finish: string;
 
     @IsNumber()
     @IsNotEmpty()
@@ -26,9 +36,5 @@ export class CreateCharacterDto{
     @IsNumber()
     @IsNotEmpty()
     statusId: number;
-
-    @IsString()
-    @IsNotEmpty()
-    gender: string;
 
 }

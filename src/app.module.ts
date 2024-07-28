@@ -8,9 +8,10 @@ import { CategoryTypeModule } from './category-type/category-type.module';
 import { StatusModule } from './status/status.module';
 import { SubcategoryModule } from './subcategory/subcategory.module';
 import { CharacterModule } from './character/character.module';
+import { EpisodeModule } from './episode/episode.module';
 
 @Module({
-  imports: [PrismaModule, StatusTypeModule, CategoryTypeModule, StatusModule, SubcategoryModule, CharacterModule],
+  imports: [PrismaModule, StatusTypeModule, CategoryTypeModule, StatusModule, SubcategoryModule, CharacterModule, EpisodeModule],
   controllers: [AppController],
   providers: [AppService],
 })

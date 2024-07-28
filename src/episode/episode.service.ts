@@ -1,22 +1,20 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCharacterDto } from './dtos/create-character.dto';
-import { UpdateCharacterDto } from './dtos/update-character.dto';
-import { StatusService } from '../status/status.service';
+import { CreateEpisodeDto } from './dtos/create-episode.dto';
+import { UpdateEpisodeDto } from './dtos/update-episode.dto';
 
 @Injectable()
-export class CharacterService {
+export class EpisodeService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly statusService: StatusService,
     ){}
 
-    //Metodo que devuelve si un personaje esta activo
+    //Metodo que devuelve si un episodio esta activo
     async getActive(id: number){
 
-        const result = await this.prisma.character.findUnique({ 
+        const result = await this.prisma.episode.findUnique({ 
             where: { id },
             include: {
                 status: true,
@@ -27,9 +25,9 @@ export class CharacterService {
 
     }
 
-    //Metodo que devuelve todos los personajes
+    //Metodo que devuelve todos los episodios
     async getAll(){
-        const result = await this.prisma.character.findMany({
+        const result = await this.prisma.episode.findMany({
             include: {
                 status: true,
                 character_episode_union: true,
@@ -42,10 +40,10 @@ export class CharacterService {
         };
     }
 
-    //Metodo que devuelve un personaje segun el id
+    //Metodo que devuelve un episodio segun el id
     async getOneById(id: number){
         
-        const result = await this.prisma.character.findUnique({ 
+        const result = await this.prisma.episode.findUnique({ 
             where: { id },
             include: {
                 status: true,
@@ -54,7 +52,7 @@ export class CharacterService {
             },
         })
 
-        if(!result) throw new HttpException("Character not found", 404)
+        if(!result) throw new HttpException("Episode not found", 404)
 
         return {
             msg: 'Peticion correcta',
@@ -62,27 +60,28 @@ export class CharacterService {
         };
     }
 
-    //Metodo que crea un personaje
-    async createOne(dto: CreateCharacterDto){
+    //Metodo que crea un episodio
+    async createOne(dto: CreateEpisodeDto){
 
         try{
 
             if(dto.name){           
 
-                const findCharacter = await this.prisma.character.findFirst({ 
+                const findCharacter = await this.prisma.episode.findFirst({ 
                     where: { name: dto.name, subcategoryId: dto.subcategoryId } 
                 });
                 
-                if(findCharacter) throw new HttpException("Character name already exists in that specie and type", 400)
+                if(findCharacter) throw new HttpException("Episode name already exists in this season", 400)
                 
             }
             
-            const result = await this.prisma.character.create({
+            const result = await this.prisma.episode.create({
                 data: {
                     name: dto.name,
+                    init: dto.init,
+                    finish: dto.finish,
                     statusId: dto.statusId,
                     subcategoryId: dto.subcategoryId,
-                    gender: dto.gender
                 }
             });
             return {
@@ -95,25 +94,25 @@ export class CharacterService {
         } 
     }
 
-    //Metodo que actualiza un personaje
-    async updateOne(id: number, dto: UpdateCharacterDto){
+    //Metodo que actualiza un episodio
+    async updateOne(id: number, dto: UpdateEpisodeDto){
 
         try{
-            const characterExist = await this.prisma.character.findUnique({ where: { id }});
+            const episodeExist = await this.prisma.episode.findUnique({ where: { id }});
 
-            if(!characterExist) throw new HttpException("Character not found", 404);
+            if(!episodeExist) throw new HttpException("Episode not found", 404);
 
             if(dto.name){           
-                
-                const findCharacter = await this.prisma.character.findFirst({ 
-                    where: { name: dto.name, subcategoryId: dto.statusId} 
+
+                const findCharacter = await this.prisma.episode.findFirst({ 
+                    where: { name: dto.name, subcategoryId: dto.subcategoryId } 
                 });
                 
-                if(findCharacter) throw new HttpException("Character already exists", 400)
+                if(findCharacter) throw new HttpException("Episode name already exists in this season", 400)
                 
             }
 
-            const result = await this.prisma.character.update({ 
+            const result = await this.prisma.episode.update({ 
                 where: {id}, 
                 data:{
                     name: dto.name
@@ -129,24 +128,24 @@ export class CharacterService {
         } 
     }
 
-    //Metodo que desactiva un personaje
+    //Metodo que desactiva un episodio
     async deleteOne(id: number){
         
         try{
 
-            const characterExist = await this.prisma.character.findUnique({ where: { id }});
+            const episodeExist = await this.prisma.episode.findUnique({ where: { id }});
 
-            if(!characterExist) throw new HttpException("Character not found", 404);
+            if(!episodeExist) throw new HttpException("Episode not found", 404);
 
             const statusExist = await this.prisma.status.findFirst({ 
                 where: {
-                    status: 'SUSPENDED'
+                    status: 'CANCELLED'
                 }
             })
 
             if(!statusExist) throw new HttpException("Status not found", 404);
 
-            const result = await this.prisma.character.update({ 
+            const result = await this.prisma.episode.update({ 
                 where: {id},
                 data: {
                     statusId: statusExist.id
@@ -162,10 +161,10 @@ export class CharacterService {
         } 
     }
 
-    //Metodo que carga los datos de migracion de la API a la tabla personajes
-    async migrateCharacters(data: [JSON]){
+    //Metodo que carga los datos de migracion de la API a la tabla episodios
+    async migrateEpisodes(data: [JSON]){
         console.log(data);
         return;
     }
-
+    
 }

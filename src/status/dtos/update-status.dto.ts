@@ -13,6 +13,7 @@ export class UpdateStatusDto{
 
     @IsString()
     @IsNotEmpty()
+    @IsOptional()
     status: string;
 
     @IsNumber()

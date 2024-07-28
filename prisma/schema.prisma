@@ -65,6 +65,7 @@ model Subcategory{
 model Character{
   id Int @id @default(autoincrement())
   name String
+  gender String
 
   status Status @relation(fields: [statusId], references: [id])
   statusId Int
@@ -79,8 +80,8 @@ model Character{
 model Episode{
   id Int @id @default(autoincrement())
   name String
-  init DateTime
-  finish DateTime
+  init String
+  finish String
 
   status Status @relation(fields: [statusId], references: [id])
   statusId Int
@@ -94,8 +95,8 @@ model Episode{
 //Character_Episode_Union Model 
 model Character_Episode_Union{
   id Int @id @default(autoincrement())
-  init DateTime?
-  finish DateTime?
+  init String?
+  finish String?
 
   character Character @relation(fields: [characterId], references: [id])
   characterId Int
