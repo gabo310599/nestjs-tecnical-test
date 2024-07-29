@@ -1,12 +1,15 @@
 /* eslint-disable prettier/prettier */
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCharactersEpisodesUnionDto } from './dto/create-characters-episodes-union.dto'
+import { CreateCharactersEpisodesUnionDto } from './dto/create-characters-episodes-union.dto';
+import { CreateApiEpisodeDto } from '../episode/dtos/create-api-episode.dto';
 
 @Injectable()
 export class CharactersEpisodesUnionService {
 
-    constructor(private readonly prisma: PrismaService){}
+    constructor(
+        private readonly prisma: PrismaService,
+    ){}
 
     //Metodo que verifica que dos segmentos de participacion no coincidan
     validateParticipation(){
@@ -27,40 +30,21 @@ export class CharactersEpisodesUnionService {
         };
     }
 
-    //Metodo que devuelve una union entre episodio y personaje segun el id
-    async getOneById(id: number){
-        
-        const result = await this.prisma.character_Episode_Union.findUnique({ 
-            where: { id },
-            include: {
-                character: true,
-                episode: true
-            },
-        })
-
-        if(!result) throw new HttpException("Union not found", 404)
-
-        return {
-            msg: 'Peticion correcta',
-            data: result,
-        };
-    }
-
     //Metodo que crea una union entre episodio y personaje
-    async createOne(characterId: number, episodeId: number, data: CreateCharactersEpisodesUnionDto){
+    async createOne(data: CreateCharactersEpisodesUnionDto){
         
         try{
             
             //Verificamos que exista el personaje y el episodio
 
             const character = await this.prisma.character.findUnique({ 
-                where: { id: characterId }
+                where: { id: data.characterId }
             })
 
             if(!character) throw new HttpException("Character not found", 404)
 
             const episode = await this.prisma.episode.findUnique({ 
-                where: { id: episodeId }
+                where: { id: data.episodeId }
             })
 
             if(!episode) throw new HttpException("Episode not found", 404)
@@ -95,24 +79,38 @@ export class CharactersEpisodesUnionService {
         } 
     }
 
-    //Metodo que elimina una union entre episodio y personaje
-    async deleteOne(id: number){
-        
+
+    //Metodo que migra los datos de union de la Api externa
+    async migrateUnion(data: CreateApiEpisodeDto){
+
         try{
+            
+            //Obtenemos los id de los personajes en el episodio
+            for(const character of data.characters){
 
-            const unionExist = await this.prisma.character_Episode_Union.findUnique({ where: { id }})
+                const characterId = character.replace("https://rickandmortyapi.com/api/character/","")
 
-            if(!unionExist) throw new HttpException("Union not found", 404)
+                //Creamos el dto de la union
+                const unionDto: CreateCharactersEpisodesUnionDto = new CreateCharactersEpisodesUnionDto(Number(characterId), data.id);
+                
+                //Guardamos la union
+                await this.prisma.character_Episode_Union.create({
+                    data:{
+                        characterId: unionDto.characterId,
+                        episodeId: unionDto.episodeId
+                    }
+                });
+            }
 
-            const result = await this.prisma.character_Episode_Union.delete({ where: {id}});
             return {
-                msg: 'Peticion correcta',
-                data: result,
-            };
+                msg: 'Peticion correcta'
+            }
 
         }catch(error: any){
             console.log(error.message)
-        } 
+        }
+
+        
     }
     
 }

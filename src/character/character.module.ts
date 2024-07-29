@@ -9,5 +9,6 @@ import { SubcategoryService } from '../subcategory/subcategory.service';
   controllers: [CharacterController],
   providers: [CharacterService, StatusService, SubcategoryService],
   imports: [PrismaModule],
+  exports: [CharacterService],
 })
 export class CharacterModule {}
