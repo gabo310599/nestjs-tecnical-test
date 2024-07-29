@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateCharactersEpisodesUnionDto } from './dto/create-characters-episodes-union.dto';
 import { CharactersEpisodesUnionService } from './characters-episodes-union.service';
 import { CreateApiEpisodeDto } from 'src/episode/dtos/create-api-episode.dto';
@@ -37,6 +37,12 @@ export class CharactersEpisodesUnionController {
         }catch(error: any){
             console.log(error.message)
         }
+    }
+
+    //Endpoint que devuelve personajes y episodios segun su status
+    @Get('/filter/status')
+    filterByStatus( @Query('status') statusName: string){
+        return this.charactersEpisodesUnionService.filterByStatus(statusName);
     }
     
 }

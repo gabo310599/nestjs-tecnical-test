@@ -79,7 +79,6 @@ export class CharactersEpisodesUnionService {
         } 
     }
 
-
     //Metodo que migra los datos de union de la Api externa
     async migrateUnion(data: CreateApiEpisodeDto){
 
@@ -113,4 +112,80 @@ export class CharactersEpisodesUnionService {
         
     }
     
+    //Metodo que elimina un personaje de un episodio
+    async deleteCharacterFromEpisode(characterId: number, episodeId: number){
+
+        try{
+
+            const unionExist = await this.prisma.character_Episode_Union.findMany({ 
+                where:{
+                    characterId: characterId,
+                    episodeId: episodeId
+                }
+            })
+
+            if(!unionExist) throw new HttpException("Union not found", 404)
+
+            //const result = await this.prisma.character.update({ })
+            return {
+                msg: 'Peticion correcta',
+                //data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        }  
+    }
+
+    //Metodo que filtra por los status de los personajes y episodios
+    async filterByStatus(statusName: string){
+        
+        try{
+
+            const statusExist = await this.prisma.status.findMany({
+                where:{
+                    status: statusName
+                }
+            })
+
+            if(!statusExist) throw new HttpException("Status not found", 404);
+
+            const result = await this.prisma.character_Episode_Union.findMany({
+                include:{
+                    character: true,
+                    episode: true
+                },
+                where:{
+                    character:{
+                        is: {
+                            status:{
+                                is:{
+                                    status: statusName
+                                }
+                            }
+                        }
+                    },
+                    episode:{
+                        is:{
+                            status:{
+                                is:{
+                                    status:statusName
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+
+    }
+
 }
