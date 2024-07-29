@@ -105,7 +105,7 @@ export class CharacterService {
                 where: { name: dto.validationName, subcategoryId: dto.validationType} 
             });
             
-            if(!findCharacter) throw new HttpException("Character update denied for validation", 400)
+            if(!findCharacter) throw new HttpException("Character update denied because of failed validation", 400)
                 
 
             const result = await this.prisma.character.update({ 
