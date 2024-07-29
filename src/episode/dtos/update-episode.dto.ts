@@ -5,16 +5,18 @@ export class UpdateEpisodeDto{
     
     constructor(
         name: string,
-        init: string,
-        finish: string,
+        duration: string,
         statusId: number,
         subcategoryId: number,
+        validationName: string,
+        validationSubcategory: number,
     ){
         this.name = name;
-        this.init = init;
-        this.finish = finish;
+        this.duration = duration;
         this.subcategoryId = subcategoryId;
         this.statusId = statusId;
+        this.validationName = validationName;
+        this.validationSubcategory = validationSubcategory;
     }
 
     @IsString()
@@ -25,12 +27,7 @@ export class UpdateEpisodeDto{
     @IsString()
     @IsNotEmpty()
     @IsOptional()
-    init: string;
-
-    @IsString()
-    @IsNotEmpty()
-    @IsOptional()
-    finish: string;
+    duration: string;
 
     @IsNumber()
     @IsNotEmpty()
@@ -41,5 +38,13 @@ export class UpdateEpisodeDto{
     @IsNotEmpty()
     @IsOptional()
     statusId: number;
+
+    @IsString()
+    @IsNotEmpty()
+    validationName: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    validationSubcategory: number;
 
 }

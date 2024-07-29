@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CharacterService } from './character.service';
 import { CreateCharacterDto } from './dtos/create-character.dto';
 import { UpdateCharacterDto } from './dtos/update-character.dto';
@@ -48,5 +48,11 @@ export class CharacterController {
     @UsePipes(ValidationPipe)
     migrateCharacters(@Body() dto: CreateApiCharacterDto[]){
         return this.charcaterService.migrateCharacters(dto);
+    }
+
+    //Endpoint que devuelve personajes segun su especie
+    @Get('/filter/species')
+    getBySpecies( @Query('species') speciesName: string){
+        return this.charcaterService.getBySpecies(speciesName);
     }
 }

@@ -32,13 +32,7 @@ export class EpisodeService {
 
     //Metodo que devuelve todos los episodios
     async getAll(){
-        const result = await this.prisma.episode.findMany({
-            include: {
-                status: true,
-                character_episode_union: true,
-                subcategory: true,
-            },
-        });
+        const result = await this.prisma.episode.findMany();
         return {
             msg: 'Peticion correcta',
             data: result,
@@ -105,21 +99,22 @@ export class EpisodeService {
             const episodeExist = await this.prisma.episode.findUnique({ where: { id }});
 
             if(!episodeExist) throw new HttpException("Episode not found", 404);
+           
 
-            if(dto.name){           
-
-                const findCharacter = await this.prisma.episode.findFirst({ 
-                    where: { name: dto.name, subcategoryId: dto.subcategoryId } 
-                });
+            const findCharacter = await this.prisma.episode.findFirst({ 
+                where: { name: dto.validationName, subcategoryId: dto.validationSubcategory } 
+            });
+            
+            if(!findCharacter) throw new HttpException("Episode update denied because of failed validation", 400)
                 
-                if(findCharacter) throw new HttpException("Episode name already exists in this season", 400)
-                
-            }
 
             const result = await this.prisma.episode.update({ 
                 where: {id}, 
                 data:{
-                    name: dto.name
+                    name: dto?.name,
+                    duration: dto?.duration,
+                    statusId: dto?.statusId,
+                    subcategoryId: dto?.subcategoryId,
                 },
             });
             return {
@@ -242,6 +237,28 @@ export class EpisodeService {
             console.log(error.message)
         } 
 
+    }
+
+    //Metodo que regresa todos los episodios de una temporada
+    async getBySpecies(seasonName: string){
+
+        const result = await this.prisma.episode.findMany({
+            include: {
+                subcategory: true,
+            },
+            where:{
+                subcategory:{
+                    is:{
+                        subcategory: seasonName
+                    }
+                }
+            }
+        });
+        
+        return{
+            msg: 'Peticion correcta',
+            data: result
+        }
     }
     
 }
