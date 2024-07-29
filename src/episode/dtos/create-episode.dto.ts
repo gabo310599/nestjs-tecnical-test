@@ -5,14 +5,12 @@ export class CreateEpisodeDto{
     
     constructor(
         name: string,
-        init: string,
-        finish: string,
+        duration: string,
         statusId: number,
         subcategoryId: number,
     ){
         this.name = name;
-        this.init = init;
-        this.finish = finish;
+        this.duration = duration;
         this.subcategoryId = subcategoryId;
         this.statusId = statusId;
     }
@@ -23,11 +21,7 @@ export class CreateEpisodeDto{
 
     @IsString()
     @IsNotEmpty()
-    init: string;
-
-    @IsString()
-    @IsNotEmpty()
-    finish: string;
+    duration: string
 
     @IsNumber()
     @IsNotEmpty()

@@ -3,12 +3,17 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEpisodeDto } from './dtos/create-episode.dto';
 import { UpdateEpisodeDto } from './dtos/update-episode.dto';
+import { CreateApiEpisodeDto } from './dtos/create-api-episode.dto';
+import { StatusService } from '../status/status.service';
+import { SubcategoryService } from '../subcategory/subcategory.service';
 
 @Injectable()
 export class EpisodeService {
 
     constructor(
         private readonly prisma: PrismaService,
+        private readonly statusService: StatusService,
+        private readonly subcategoryService: SubcategoryService,
     ){}
 
     //Metodo que devuelve si un episodio esta activo
@@ -78,8 +83,7 @@ export class EpisodeService {
             const result = await this.prisma.episode.create({
                 data: {
                     name: dto.name,
-                    init: dto.init,
-                    finish: dto.finish,
+                    duration: dto.duration,
                     statusId: dto.statusId,
                     subcategoryId: dto.subcategoryId,
                 }
@@ -162,9 +166,82 @@ export class EpisodeService {
     }
 
     //Metodo que carga los datos de migracion de la API a la tabla episodios
-    async migrateEpisodes(data: [JSON]){
-        console.log(data);
-        return;
+    async migrateEpisodes(dto: CreateApiEpisodeDto[]){
+
+        //Ubicamos el id del status activo de episodios 
+        //(por defecto, todos los episodios se importaran como activos)
+        const statusId = await this.statusService.getStatusId("EPISODES", "ACTIVE");
+
+        //Creamos el arreglo de dto que migrara los datos extraidos de la Api externa
+        let episodeDto: CreateEpisodeDto;
+        const episodesList: CreateEpisodeDto[] = [];
+
+        //Recorremos el dto Api externa para transformarlo en el dto que maneja la aplicacion
+        for(const element of dto){
+            
+            //Ubicamos el id de la subcategoria (season)
+            let subcategoryName = "SEASON ";
+            const episodeArray = element.episode.split('E')
+            const seasonNumber = episodeArray[0].replace('S','');
+            subcategoryName = subcategoryName + seasonNumber;
+
+            let subcategoryId = await this.subcategoryService.getSubcategoryId("SEASON",subcategoryName);
+
+
+            //Si no exista la subcategoria, se crea y obtenemos el id
+            if(!subcategoryId){
+                subcategoryId = await this.subcategoryService.createSubcategory("SEASON", subcategoryName);
+            }
+
+            //Generamos los segundos y minutos de duracion
+            let seconds = Math.floor(Math.random() * 61);
+            let minutes = Math.floor(Math.random() * 60);
+            if(seconds === 60 ){
+                seconds = 0;
+                minutes = minutes + 1; 
+            }
+            if(minutes < 10){
+                minutes = minutes + 10;
+            }
+            
+            //Le damos forma a duracion
+            let secondsString = "";
+            const minutesString = "" + minutes;
+            if(seconds < 10){
+                secondsString = "0" + seconds;
+            }else{
+                secondsString = "" + seconds;
+            }
+
+            const duration = minutesString + ":" + secondsString;
+
+
+            //Creamos el dto y lo agregamos a la lista
+            episodeDto = new CreateEpisodeDto(
+                element.name,
+                duration,
+                statusId,
+                subcategoryId
+            );
+            episodesList.push(episodeDto);           
+        }
+
+        //Creamos los registros de episodios en la base de datos
+        try{
+            
+            const result = await this.prisma.episode.createMany({
+                data: episodesList
+            });
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+
     }
     
 }

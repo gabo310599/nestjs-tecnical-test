@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateCharacterDto } from './dtos/create-character.dto';
 import { UpdateCharacterDto } from './dtos/update-character.dto';
 import { StatusService } from '../status/status.service';
+import { SubcategoryService } from '../subcategory/subcategory.service';
 
 @Injectable()
 export class CharacterService {
@@ -11,6 +12,7 @@ export class CharacterService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly statusService: StatusService,
+        private readonly categoryService: SubcategoryService
     ){}
 
     //Metodo que devuelve si un personaje esta activo
@@ -20,8 +22,8 @@ export class CharacterService {
             where: { id },
             include: {
                 status: true,
-            },
-        })
+            }, 
+        });
 
         return (result && result.status.status === "ACTIVE");
 
@@ -35,6 +37,9 @@ export class CharacterService {
                 character_episode_union: true,
                 subcategory: true,
             },
+            cursor: {
+                id: 1
+            }
         });
         return {
             msg: 'Peticion correcta',
@@ -164,8 +169,13 @@ export class CharacterService {
 
     //Metodo que carga los datos de migracion de la API a la tabla personajes
     async migrateCharacters(data: [JSON]){
-        console.log(data);
-        return;
+
+        characterDto: CreateCharacterDto;
+        characters: [];
+
+        return {
+            msg: 'Peticion correcta',
+        };
     }
 
 }

@@ -80,8 +80,7 @@ model Character{
 model Episode{
   id Int @id @default(autoincrement())
   name String
-  init String
-  finish String
+  duration String
 
   status Status @relation(fields: [statusId], references: [id])
   statusId Int

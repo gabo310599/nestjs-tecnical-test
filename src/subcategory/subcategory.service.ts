@@ -120,4 +120,57 @@ export class SubcategoryService {
             console.log(error.message)
         } 
     }
+
+    //Metodo que retorna el id del status solicitado
+    async getSubcategoryId(category: string, subcategory: string){
+        
+        const type = await this.prisma.category_Type.findFirst({
+            where:{
+                type_name: category
+            }
+        })
+
+        if(!type) throw new HttpException("Category type not found", 404);
+        
+        const result = await this.prisma.subcategory.findFirst({ 
+            where: { 
+                subcategory: subcategory,
+                categoryId: type.id    
+            }
+        })
+
+        if(!result){
+            return null;
+        }
+
+        return result.id;
+    }
+
+    //Metodo que crea una subcategoria durante la migracion de datos de la Api externa
+    async createSubcategory(category: string, subcategory: string){
+
+        const type = await this.prisma.category_Type.findFirst({
+            where:{
+                type_name: category
+            }
+        })
+
+        if(!type) throw new HttpException("Category type not found", 404);
+
+        try{
+
+            const result = await this.prisma.subcategory.create({ 
+                data:{
+                    subcategory: subcategory,
+                    categoryId: type.id
+                }
+            })
+
+            return result.id;
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+
+    }
 }
