@@ -8,11 +8,15 @@ export class UpdateCharacterDto{
         subcategoryId: number,
         statusId: number,
         gender: string,
+        validationName: string,
+        validationType: number
     ){
         this.name = name;
         this.subcategoryId = subcategoryId;
         this.statusId = statusId;
         this.gender = gender;
+        this.validationName = validationName;
+        this.validationType = validationType;
     }
 
     @IsString()
@@ -34,4 +38,13 @@ export class UpdateCharacterDto{
     @IsNotEmpty()
     @IsOptional()
     gender: string;
+
+    @IsString()
+    @IsNotEmpty()
+    validationName: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    validationType: number;
+
 }

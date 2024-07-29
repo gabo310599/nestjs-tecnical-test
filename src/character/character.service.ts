@@ -32,13 +32,7 @@ export class CharacterService {
 
     //Metodo que devuelve todos los personajes
     async getAll(){
-        const result = await this.prisma.character.findMany({
-            include: {
-                status: true,
-                character_episode_union: true,
-                subcategory: true,
-            }
-        });
+        const result = await this.prisma.character.findMany();
         return {
             msg: 'Peticion correcta',
             data: result,
@@ -105,21 +99,22 @@ export class CharacterService {
             const characterExist = await this.prisma.character.findUnique({ where: { id }});
 
             if(!characterExist) throw new HttpException("Character not found", 404);
-
-            if(dto.name){           
+           
                 
-                const findCharacter = await this.prisma.character.findFirst({ 
-                    where: { name: dto.name, subcategoryId: dto.statusId} 
-                });
+            const findCharacter = await this.prisma.character.findFirst({ 
+                where: { name: dto.validationName, subcategoryId: dto.validationType} 
+            });
+            
+            if(!findCharacter) throw new HttpException("Character update denied for validation", 400)
                 
-                if(findCharacter) throw new HttpException("Character already exists", 400)
-                
-            }
 
             const result = await this.prisma.character.update({ 
                 where: {id}, 
                 data:{
-                    name: dto.name
+                    name: dto.name,
+                    subcategoryId: dto?.subcategoryId,
+                    statusId: dto?.statusId,
+                    gender: dto?.gender,
                 },
             });
             return {
