@@ -7,5 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   controllers: [StatusController],
   providers: [StatusService],
   imports: [PrismaModule],
+  exports: [StatusService],
 })
 export class StatusModule {}

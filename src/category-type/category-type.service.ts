@@ -113,4 +113,21 @@ export class CategoryTypeService {
             console.log(error.message)
         } 
     }
+
+    //Metodo que carga los datos de migracion de los tipos de categoria (solo usar una vez)
+    async migrateCategoryTypes(data: Prisma.Category_TypeCreateManyInput){
+        try{
+            
+            const result = await this.prisma.category_Type.createMany({
+                data: data
+            });
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+    }
 }

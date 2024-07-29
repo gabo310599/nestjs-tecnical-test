@@ -114,4 +114,22 @@ export class StatusTypeService {
         } 
     }
 
+    //Metodo que carga los datos de migracion de los tipos de status (solo usar una vez)
+    async migrateStatusTypes(data: Prisma.Status_TypeCreateManyInput){
+        try{
+            
+            const result = await this.prisma.status_Type.createMany({
+                data: data
+            });
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+    }
+
 }

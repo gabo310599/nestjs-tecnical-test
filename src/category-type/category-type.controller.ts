@@ -40,4 +40,11 @@ export class CategoryTypeController {
     deleteOne( @Param('id', ParseIntPipe) id: number ){
         return this.categoryTypeService.deleteOne(id)
     }
+
+    //Endpoint que migra los tipos de categorias
+    @Post('/migrate')
+    @UsePipes(ValidationPipe)
+    migrateCategoryTypes(@Body() data){
+        return this.categoryTypeService.migrateCategoryTypes(data);
+    }
 }

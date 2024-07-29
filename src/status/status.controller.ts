@@ -40,4 +40,10 @@ export class StatusController {
     deleteOne( @Param('id', ParseIntPipe) id: number ){
         return this.statusService.deleteOne(id)
     }
+
+    //Endpoint que crea un status
+    @Post('/migrate')
+    migrateStatus(){
+        return this.statusService.migrateStatus();
+    }
 }

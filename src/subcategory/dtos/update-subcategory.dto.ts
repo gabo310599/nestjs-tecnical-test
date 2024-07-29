@@ -13,6 +13,7 @@ export class UpdateSubcategoryDto{
 
     @IsString()
     @IsNotEmpty()
+    @IsOptional()
     subcategory: string;
 
     @IsNumber()

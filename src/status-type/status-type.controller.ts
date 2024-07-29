@@ -40,4 +40,11 @@ export class StatusTypeController {
     deleteOne( @Param('id', ParseIntPipe) id: number ){
         return this.statusTypeService.deleteOne(id)
     }
+
+    //Endpoint que migra los status types 
+    @Post('/migrate')
+    @UsePipes(ValidationPipe)
+    migrateStatusTypes(@Body() data){
+        return this.statusTypeService.migrateStatusTypes(data);
+    }
 }

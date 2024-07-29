@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty } from 'class-validator'
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator'
 
 export class UpdateCategoryTypeDto{
 
@@ -11,5 +11,6 @@ export class UpdateCategoryTypeDto{
     
     @IsString()
     @IsNotEmpty()
+    @IsOptional()
     type_name: string;
 }

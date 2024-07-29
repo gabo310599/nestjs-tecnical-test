@@ -2,6 +2,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { CreateStatusDto } from './dtos/create-status.dto';
 
 @Injectable()
 export class StatusService {
@@ -114,5 +115,80 @@ export class StatusService {
         } 
     }
 
+    //Metodo que inicializa los status de los personajes y episodios
+    async migrateStatus(){
 
+        let statusDto: CreateStatusDto;
+        const statusList: CreateStatusDto[] = [];
+
+        const characterType = await this.prisma.status_Type.findFirst({ 
+            where:{
+                type_name: 'CHARACTERS'
+            } 
+        })
+
+        if(!characterType) throw new HttpException("Status CHARACTERS not found", 404)
+
+        const episodeType = await this.prisma.status_Type.findFirst({ 
+            where:{
+                type_name: 'EPISODES'
+            }   
+        })
+
+        if(!episodeType) throw new HttpException("Status EPISODES not found", 404)
+
+        //Inicializamos y agremos a la lista
+
+        statusDto = new CreateStatusDto('ACTIVE', characterType.id);
+        statusList.push(statusDto);
+
+        statusDto = new CreateStatusDto('SUSPENDED', characterType.id);
+        statusList.push(statusDto);
+
+        statusDto = new CreateStatusDto('ACTIVE', episodeType.id);
+        statusList.push(statusDto);
+
+        statusDto = new CreateStatusDto('CANCELLED', episodeType.id);
+        statusList.push(statusDto);
+
+        //Llenamos la base de datos
+        try{
+            
+            const result = await this.prisma.status.createMany({
+                data: statusList
+            });
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+    }
+
+    //Metodo que retorna el id del status solicitado
+    async getStatusId(statusType: string, statusName: string){
+        
+        const type = await this.prisma.status_Type.findFirst({
+            where:{
+                type_name: statusType
+            }
+        })
+
+        if(!type) throw new HttpException("Status type not found", 404);
+        
+        const result = await this.prisma.status.findFirst({ 
+            where: { 
+                status: statusName,
+                typeId: type.id    
+            }
+        })
+
+        if(!result) throw new HttpException("Status not found", 404);
+
+        return result.id;
+    }
+    
 }
