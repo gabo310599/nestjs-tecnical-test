@@ -37,9 +37,6 @@ export class CharacterService {
                 status: true,
                 character_episode_union: true,
                 subcategory: true,
-            },
-            cursor: {
-                id: 1
             }
         });
         return {
@@ -223,6 +220,28 @@ export class CharacterService {
         }catch(error: any){
             console.log(error.message)
         } 
+    }
+
+    //Metodo que regresa todos los personajes de una especie
+    async getBySpecies(speciesName: string){
+
+        const result = await this.prisma.character.findMany({
+            include: {
+                subcategory: true,
+            },
+            where:{
+                subcategory:{
+                    is:{
+                        subcategory: speciesName
+                    }
+                }
+            }
+        });
+        
+        return{
+            msg: 'Peticion correcta',
+            data: result
+        }
     }
 
 }
