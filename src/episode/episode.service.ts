@@ -32,13 +32,7 @@ export class EpisodeService {
 
     //Metodo que devuelve todos los episodios
     async getAll(){
-        const result = await this.prisma.episode.findMany({
-            include: {
-                status: true,
-                character_episode_union: true,
-                subcategory: true,
-            },
-        });
+        const result = await this.prisma.episode.findMany();
         return {
             msg: 'Peticion correcta',
             data: result,
