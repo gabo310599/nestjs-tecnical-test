@@ -3,6 +3,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCharactersEpisodesUnionDto } from './dto/create-characters-episodes-union.dto';
 import { CreateApiEpisodeDto } from '../episode/dtos/create-api-episode.dto';
+import { DeleteCharactersEpisodesUnionDto } from './dto/delete-characters-episodes-union.dto';
 
 @Injectable()
 export class CharactersEpisodesUnionService {
@@ -24,6 +25,25 @@ export class CharactersEpisodesUnionService {
                 episode: true
             },
         });
+        return {
+            msg: 'Peticion correcta',
+            data: result,
+        };
+    }
+
+    //Metodo que devuelve una union segun el id
+    async getOneById(id: number){
+    
+        const result = await this.prisma.character_Episode_Union.findUnique({ 
+            where: { id },
+            include: {
+                character: true,
+                episode: true,
+            },
+        })
+
+        if(!result) throw new HttpException("Character not found", 404)
+
         return {
             msg: 'Peticion correcta',
             data: result,
@@ -111,25 +131,54 @@ export class CharactersEpisodesUnionService {
 
         
     }
+
+    //Metodo que elimina una union
+    async deleteOne(id: number){
+
+        try{
+
+            return await this.prisma.character_Episode_Union.delete({ where:{id} })
+
+        }catch(error: any){
+            console.log(error.message)
+        }  
+    }
     
     //Metodo que elimina un personaje de un episodio
-    async deleteCharacterFromEpisode(characterId: number, episodeId: number){
+    async deleteCharacterFromEpisode(dto: DeleteCharactersEpisodesUnionDto){
 
         try{
 
             const unionExist = await this.prisma.character_Episode_Union.findMany({ 
+                include:{
+                    character: true,
+                    episode: true
+                },
                 where:{
-                    characterId: characterId,
-                    episodeId: episodeId
+                    character:{
+                        is:{
+                            id: dto.characterId
+                        }
+                    },
+                    episode:{
+                        is:{
+                            id: dto.episodeId
+                        }
+                    }
                 }
             })
 
             if(!unionExist) throw new HttpException("Union not found", 404)
 
-            //const result = await this.prisma.character.update({ })
+
+            for(const element of unionExist){
+                await this.deleteOne(element.id)
+            }
+             
+
             return {
                 msg: 'Peticion correcta',
-                //data: result,
+                data: unionExist,
             };
 
         }catch(error: any){

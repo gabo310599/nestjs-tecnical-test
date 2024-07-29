@@ -93,6 +93,7 @@ model Episode{
 
 //Character_Episode_Union Model 
 model Character_Episode_Union{
+  id Int @id @default(autoincrement())
   init String?
   finish String?
 
@@ -102,7 +103,6 @@ model Character_Episode_Union{
   episodeId Int
 
   @@map("characters_episodes_union")
-  @@id([characterId, episodeId])
 }
 
 

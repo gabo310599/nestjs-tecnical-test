@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CreateCharactersEpisodesUnionDto } from './dto/create-characters-episodes-union.dto';
 import { CharactersEpisodesUnionService } from './characters-episodes-union.service';
-import { CreateApiEpisodeDto } from 'src/episode/dtos/create-api-episode.dto';
+import { CreateApiEpisodeDto } from '../episode/dtos/create-api-episode.dto';
+import { DeleteCharactersEpisodesUnionDto } from './dto/delete-characters-episodes-union.dto'
 
 @Controller('characters-episodes-union')
 export class CharactersEpisodesUnionController {
@@ -13,6 +14,12 @@ export class CharactersEpisodesUnionController {
     @Get()
     getAll(){
         return this.charactersEpisodesUnionService.getAll();
+    }
+
+    //Endpoint que devuelve una union segun su id
+    @Get(':id')
+    getOneById( @Param('id', ParseIntPipe) id: number){
+        return this.charactersEpisodesUnionService.getOneById(id);
     }
 
     //Endpoint que crea una union
@@ -44,5 +51,10 @@ export class CharactersEpisodesUnionController {
     filterByStatus( @Query('status') statusName: string){
         return this.charactersEpisodesUnionService.filterByStatus(statusName);
     }
-    
+
+    //Endpoint que elimina un personajes de un episodio 
+    @Delete()
+    deleteCharacterFromEpisode( @Body() dto: DeleteCharactersEpisodesUnionDto){
+        return this.charactersEpisodesUnionService.deleteCharacterFromEpisode(dto);
+    }
 }
