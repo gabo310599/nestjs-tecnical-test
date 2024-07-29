@@ -244,5 +244,27 @@ export class EpisodeService {
         } 
 
     }
+
+    //Metodo que regresa todos los episodios de una temporada
+    async getBySpecies(seasonName: string){
+
+        const result = await this.prisma.episode.findMany({
+            include: {
+                subcategory: true,
+            },
+            where:{
+                subcategory:{
+                    is:{
+                        subcategory: seasonName
+                    }
+                }
+            }
+        });
+        
+        return{
+            msg: 'Peticion correcta',
+            data: result
+        }
+    }
     
 }

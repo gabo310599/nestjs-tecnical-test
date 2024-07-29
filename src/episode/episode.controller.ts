@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { EpisodeService } from './episode.service';
 import { UpdateEpisodeDto } from './dtos/update-episode.dto';
 import { CreateEpisodeDto } from './dtos/create-episode.dto';
@@ -47,5 +47,11 @@ export class EpisodeController {
     @UsePipes(ValidationPipe)
     migrateEpisodes(@Body() dto: CreateApiEpisodeDto[]){
         return this.episodeService.migrateEpisodes(dto);
+    }
+
+    //Endpoint que devuelve personajes segun su especie
+    @Get('/filter/season')
+    getBySeason( @Query('season') seasonName: string){
+        return this.episodeService.getBySpecies(seasonName);
     }
 }
