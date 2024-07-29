@@ -7,12 +7,12 @@ export class CreateCharacterDto{
         name: string,
         subcategoryId: number,
         statusId: number,
-        gennder: string,
+        gender: string,
     ){
         this.name = name;
         this.subcategoryId = subcategoryId;
         this.statusId = statusId;
-        this.gender = gennder;
+        this.gender = gender;
     }
 
     @IsString()

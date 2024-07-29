@@ -5,6 +5,7 @@ import { CreateCharacterDto } from './dtos/create-character.dto';
 import { UpdateCharacterDto } from './dtos/update-character.dto';
 import { StatusService } from '../status/status.service';
 import { SubcategoryService } from '../subcategory/subcategory.service';
+import { CreateApiCharacterDto } from './dtos/create-api-character.dto';
 
 @Injectable()
 export class CharacterService {
@@ -12,7 +13,7 @@ export class CharacterService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly statusService: StatusService,
-        private readonly categoryService: SubcategoryService
+        private readonly subcategoryService: SubcategoryService
     ){}
 
     //Metodo que devuelve si un personaje esta activo
@@ -168,14 +169,60 @@ export class CharacterService {
     }
 
     //Metodo que carga los datos de migracion de la API a la tabla personajes
-    async migrateCharacters(data: [JSON]){
+    async migrateCharacters(dto: CreateApiCharacterDto[]){
 
-        characterDto: CreateCharacterDto;
-        characters: [];
+        //Creamos el arreglo de dto que migrara los datos extraidos de la Api externa
+        let characterDto: CreateCharacterDto;
+        const charactersList: CreateCharacterDto[] = [];
+        
 
-        return {
-            msg: 'Peticion correcta',
-        };
+        //Recorremos el dto Api externa para transformarlo en el dto que maneja la aplicacion
+        for(const element of dto){
+
+            //Ubicamos el id del status activo de episodios
+            let statusId;
+            
+            if(element.status === 'Alive'){
+                statusId = await this.statusService.getStatusId("CHARACTERS", "ACTIVE");
+            }else{
+                statusId = await this.statusService.getStatusId("CHARACTERS", "SUSPENDED");
+            }
+
+            //Ubicamos el id de la subcategoria (species)
+            let subcategoryId = await this.subcategoryService.getSubcategoryId("SPECIES", element.species);
+
+
+            //Si no exista la subcategoria, se crea y obtenemos el id
+            if(!subcategoryId){
+                subcategoryId = await this.subcategoryService.createSubcategory("SPECIES", element.species);
+            }
+
+            //Creamos el dto y lo agregamos a la lista
+            characterDto = new CreateCharacterDto(
+                element.name,
+                subcategoryId,
+                statusId,
+                element.gender,
+            );
+            charactersList.push(characterDto); 
+
+        }
+
+        //Creamos los registros de episodios en la base de datos
+        try{
+                    
+            const result = await this.prisma.character.createMany({
+                data: charactersList
+            });
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
     }
 
 }

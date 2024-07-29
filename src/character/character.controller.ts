@@ -3,6 +3,7 @@ import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes
 import { CharacterService } from './character.service';
 import { CreateCharacterDto } from './dtos/create-character.dto';
 import { UpdateCharacterDto } from './dtos/update-character.dto';
+import { CreateApiCharacterDto } from './dtos/create-api-character.dto';
 
 
 @Controller('character')
@@ -45,7 +46,7 @@ export class CharacterController {
     //Endpoint que crea un personaje
     @Post('/migrate')
     @UsePipes(ValidationPipe)
-    migrateCharacters(@Body() data: [JSON]){
-        return this.charcaterService.migrateCharacters(data);
+    migrateCharacters(@Body() dto: CreateApiCharacterDto[]){
+        return this.charcaterService.migrateCharacters(dto);
     }
 }
