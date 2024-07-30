@@ -12,8 +12,12 @@ export class EpisodeController {
 
     //Endpoint que devuelve una lista de todos los episodios
     @Get()
-    getAll(){
-        return this.episodeService.getAll();
+    getAll(@Query('page') pageNumber: string){
+        try{
+            return this.episodeService.getAll(Number(pageNumber));
+        }catch(error){
+            console.log(error);
+        }
     }
 
     //Endpoint que devuelve un episodio segun su id

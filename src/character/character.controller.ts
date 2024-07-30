@@ -13,8 +13,12 @@ export class CharacterController {
 
     //Endpoint que devuelve una lista de todos los personajes
     @Get()
-    getAll(){
-        return this.charcaterService.getAll();
+    getAll(@Query('page') pageNumber: string){
+        try{
+            return this.charcaterService.getAll(Number(pageNumber));
+        }catch(error){
+            console.log(error);
+        }
     }
 
     //Endpoint que devuelve un personaje segun su id

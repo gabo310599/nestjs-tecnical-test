@@ -13,8 +13,12 @@ export class CharactersEpisodesUnionController {
 
     //Endpoint que devuelve una lista de todas las uniones
     @Get()
-    getAll(){
-        return this.charactersEpisodesUnionService.getAll();
+    getAll(@Query('page') pageNumber: string){
+        try{
+            return this.charactersEpisodesUnionService.getAll(Number(pageNumber));
+        }catch(error){
+            console.log(error);
+        }
     }
 
     //Endpoint que devuelve una union segun su id

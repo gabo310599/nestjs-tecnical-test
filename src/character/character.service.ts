@@ -31,10 +31,44 @@ export class CharacterService {
     }
 
     //Metodo que devuelve todos los personajes
-    async getAll(){
-        const result = await this.prisma.character.findMany();
+    async getAll(pageNumber: number){
+
+        let offset = 0;
+        if(pageNumber)
+            offset = (pageNumber - 1) * 5;
+        else
+            pageNumber = 1
+
+        const result = await this.prisma.character.findMany({
+            skip: offset,
+            take: 5,
+            orderBy:{ id: "asc"},
+            include:{
+                subcategory: true,
+                status: true,
+            }
+        });
+
+        const recordCount = await this.prisma.character.count();
+
+        //Preparamos siguiente/previa pagina 
+        let nextPage = null;
+        let prevPage = null;
+
+        //Previa
+        if(pageNumber > 1 && result.length > 0){
+            prevPage = "http://localhost:3000/character?page="+(pageNumber-1);
+        }
+
+        //Siguiente
+        if(offset + 5 <  recordCount){
+            nextPage = "http://localhost:3000/character?page="+(pageNumber+1);
+        }    
+
         return {
             msg: 'Peticion correcta',
+            next: nextPage,
+            prev: prevPage,
             data: result,
         };
     }
@@ -46,7 +80,6 @@ export class CharacterService {
             where: { id },
             include: {
                 status: true,
-                character_episode_union: true,
                 subcategory: true,
             },
         })

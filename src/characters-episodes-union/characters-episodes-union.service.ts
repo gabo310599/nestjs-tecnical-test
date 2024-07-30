@@ -33,7 +33,7 @@ export class CharactersEpisodesUnionService {
         //Confirmamos que init no sea mayor a finish
         if(secondsInit >= secondsFinish){
             return {
-                msg: "Duration is longer than expected",
+                msg: "Init can't be greater than finish",
                 status: false 
             }
         }
@@ -73,15 +73,44 @@ export class CharactersEpisodesUnionService {
     }
 
     //Metodo que devuelve todas las uniones entre episodios y personajes
-    async getAll(){
+    async getAll(pageNumber: number){
+
+        let offset = 0;
+        if(pageNumber)
+            offset = (pageNumber - 1) * 5;
+        else
+            pageNumber = 1
+        
         const result = await this.prisma.character_Episode_Union.findMany({
+            skip: offset,
+            take: 5,
+            orderBy:{ id: "asc"},
             include: {
                 character: true,
                 episode: true
             },
         });
+
+        const recordCount = await this.prisma.character_Episode_Union.count();
+
+        //Preparamos siguiente/previa pagina 
+        let nextPage = null;
+        let prevPage = null;
+
+        //Previa
+        if(pageNumber > 1 && result.length > 0){
+            prevPage = "http://localhost:3000/characters-episodes-union?page="+(pageNumber-1);
+        }
+
+        //Siguiente
+        if(offset + 5 <  recordCount){
+            nextPage = "http://localhost:3000/episode?page="+(pageNumber+1);
+        }    
+
         return {
             msg: 'Peticion correcta',
+            next: nextPage,
+            prev: prevPage,
             data: result,
         };
     }
@@ -149,6 +178,14 @@ export class CharactersEpisodesUnionService {
                     });
 
                     if(exactUnion) throw new BadRequestException("Union already exist");
+                    
+                    //Verificamos que el lapso no sea mayor a la duracion del episodio
+                    const minutesDuration = Number(episode.duration.slice(0,2));
+                    const secondsDuration = Number(episode.duration.slice(3)) + (minutesDuration * 60);
+                    const minutesFinish = Number(dto.finish.slice(0,2));
+                    const secondsFinish = Number(dto.finish.slice(3)) + (minutesFinish * 60);
+
+                    if(secondsFinish > secondsDuration) throw new BadRequestException("Finish can't be greater than duration")
                 
                     //Validamos que no se sobreponga el lapso de participacion
                     for(const union of unionExist){
@@ -198,6 +235,9 @@ export class CharactersEpisodesUnionService {
             const unionExist = await this.prisma.character_Episode_Union.findUnique({ 
                 where: { 
                     id: id
+                },
+                include:{
+                    episode: true
                 }
             })
 
@@ -206,6 +246,14 @@ export class CharactersEpisodesUnionService {
             const validation = this.validateParticipation(dto.init, dto.finish, unionExist.init, unionExist.finish);
 
             if(!validation.status) throw new BadRequestException("Not valid participation");
+
+            //Verificamos que el lapso no sea mayor a la duracion del episodio
+            const minutesDuration = Number(unionExist.episode.duration.slice(0,2));
+            const secondsDuration = Number(unionExist.episode.duration.slice(3)) + (minutesDuration * 60);
+            const minutesFinish = Number(dto.finish.slice(0,2));
+            const secondsFinish = Number(dto.finish.slice(3)) + (minutesFinish * 60);
+
+            if(secondsFinish > secondsDuration) throw new BadRequestException("Finish can't be greater than duration")
 
             const result = await this.prisma.character_Episode_Union.update({
                 where:{
