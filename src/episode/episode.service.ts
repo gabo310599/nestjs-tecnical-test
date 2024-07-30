@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEpisodeDto } from './dtos/create-episode.dto';
 import { UpdateEpisodeDto } from './dtos/update-episode.dto';
@@ -73,6 +73,16 @@ export class EpisodeService {
                 if(findEpisode) throw new HttpException("Episode name already exists in this season", 400)
                 
             }
+
+            if(dto.duration){
+
+                //Validamos que no sea mayor a 60 minutos
+                const minutes = Number(dto.duration.slice(0,2));
+                const seconds = Number(dto.duration.slice(3)) + (minutes * 60);
+
+                if(seconds > 3600) throw new BadRequestException("Not valid duration")
+
+            }
             
             const result = await this.prisma.episode.create({
                 data: {
@@ -115,6 +125,16 @@ export class EpisodeService {
                 
                 if(findEpisodeName) throw new HttpException("Episode name already exists in this season", 400)
                 
+            }
+
+            if(dto.duration){
+
+                //Validamos que no sea mayor a 60 minutos
+                const minutes = Number(dto.duration.slice(0,2));
+                const seconds = Number(dto.duration.slice(3)) + (minutes * 60);
+
+                if(seconds > 3600) throw new BadRequestException("Not valid duration")
+                    
             }
 
             const result = await this.prisma.episode.update({ 
