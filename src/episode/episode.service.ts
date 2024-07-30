@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { HttpException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEpisodeDto } from './dtos/create-episode.dto';
 import { UpdateEpisodeDto } from './dtos/update-episode.dto';
@@ -31,10 +31,44 @@ export class EpisodeService {
     }
 
     //Metodo que devuelve todos los episodios
-    async getAll(){
-        const result = await this.prisma.episode.findMany();
+    async getAll(pageNumber: number){
+
+        let offset = 0;
+        if(pageNumber)
+            offset = (pageNumber - 1) * 5;
+        else
+            pageNumber = 1
+
+        const result = await this.prisma.episode.findMany({
+            skip: offset,
+            take: 5,
+            orderBy:{ id: "asc"},
+            include:{
+                subcategory: true,
+                status: true,
+            }
+        });
+
+        const recordCount = await this.prisma.episode.count();
+
+        //Preparamos siguiente/previa pagina 
+        let nextPage = null;
+        let prevPage = null;
+
+        //Previa
+        if(pageNumber > 1 && result.length > 0){
+            prevPage = "http://localhost:3000/episode?page="+(pageNumber-1);
+        }
+
+        //Siguiente
+        if(offset + 5 <  recordCount){
+            nextPage = "http://localhost:3000/episode?page="+(pageNumber+1);
+        }
+
         return {
             msg: 'Peticion correcta',
+            next: nextPage,
+            prev: prevPage,
             data: result,
         };
     }
@@ -66,12 +100,22 @@ export class EpisodeService {
 
             if(dto.name){           
 
-                const findCharacter = await this.prisma.episode.findFirst({ 
+                const findEpisode = await this.prisma.episode.findFirst({ 
                     where: { name: dto.name, subcategoryId: dto.subcategoryId } 
                 });
                 
-                if(findCharacter) throw new HttpException("Episode name already exists in this season", 400)
+                if(findEpisode) throw new HttpException("Episode name already exists in this season", 400)
                 
+            }
+
+            if(dto.duration){
+
+                //Validamos que no sea mayor a 60 minutos
+                const minutes = Number(dto.duration.slice(0,2));
+                const seconds = Number(dto.duration.slice(3)) + (minutes * 60);
+
+                if(seconds > 3600) throw new BadRequestException("Not valid duration")
+
             }
             
             const result = await this.prisma.episode.create({
@@ -101,12 +145,31 @@ export class EpisodeService {
             if(!episodeExist) throw new HttpException("Episode not found", 404);
            
 
-            const findCharacter = await this.prisma.episode.findFirst({ 
+            const findEpisode = await this.prisma.episode.findFirst({ 
                 where: { name: dto.validationName, subcategoryId: dto.validationSubcategory } 
             });
             
-            if(!findCharacter) throw new HttpException("Episode update denied because of failed validation", 400)
+            if(!findEpisode) throw new HttpException("Episode update denied because of failed validation", 400)
+            
+            if(dto.name){           
+
+                const findEpisodeName = await this.prisma.episode.findFirst({ 
+                    where: { name: dto.name, subcategoryId: dto.subcategoryId } 
+                });
                 
+                if(findEpisodeName) throw new HttpException("Episode name already exists in this season", 400)
+                
+            }
+
+            if(dto.duration){
+
+                //Validamos que no sea mayor a 60 minutos
+                const minutes = Number(dto.duration.slice(0,2));
+                const seconds = Number(dto.duration.slice(3)) + (minutes * 60);
+
+                if(seconds > 3600) throw new BadRequestException("Not valid duration")
+                    
+            }
 
             const result = await this.prisma.episode.update({ 
                 where: {id}, 
