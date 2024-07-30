@@ -66,11 +66,11 @@ export class EpisodeService {
 
             if(dto.name){           
 
-                const findCharacter = await this.prisma.episode.findFirst({ 
+                const findEpisode = await this.prisma.episode.findFirst({ 
                     where: { name: dto.name, subcategoryId: dto.subcategoryId } 
                 });
                 
-                if(findCharacter) throw new HttpException("Episode name already exists in this season", 400)
+                if(findEpisode) throw new HttpException("Episode name already exists in this season", 400)
                 
             }
             
@@ -101,12 +101,21 @@ export class EpisodeService {
             if(!episodeExist) throw new HttpException("Episode not found", 404);
            
 
-            const findCharacter = await this.prisma.episode.findFirst({ 
+            const findEpisode = await this.prisma.episode.findFirst({ 
                 where: { name: dto.validationName, subcategoryId: dto.validationSubcategory } 
             });
             
-            if(!findCharacter) throw new HttpException("Episode update denied because of failed validation", 400)
+            if(!findEpisode) throw new HttpException("Episode update denied because of failed validation", 400)
+            
+            if(dto.name){           
+
+                const findEpisodeName = await this.prisma.episode.findFirst({ 
+                    where: { name: dto.name, subcategoryId: dto.subcategoryId } 
+                });
                 
+                if(findEpisodeName) throw new HttpException("Episode name already exists in this season", 400)
+                
+            }
 
             const result = await this.prisma.episode.update({ 
                 where: {id}, 

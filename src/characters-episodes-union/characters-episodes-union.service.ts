@@ -237,4 +237,45 @@ export class CharactersEpisodesUnionService {
 
     }
 
+    //Metodo que filtra por los status de los personajes y episodios
+    async filterCharacterBySeason(seasonName: string){
+    
+        try{
+
+            const statusExist = await this.prisma.subcategory.findMany({
+                where:{
+                    subcategory: seasonName
+                }
+            })
+
+            if(!statusExist) throw new HttpException("Status not found", 404);
+
+            const result = await this.prisma.character_Episode_Union.findMany({
+                include:{
+                    character: true,
+                },
+                where:{
+                    episode:{
+                        is:{
+                            subcategory:{
+                                is:{
+                                    subcategory:seasonName
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+
+            return {
+                msg: 'Peticion correcta',
+                data: result,
+            };
+
+        }catch(error: any){
+            console.log(error.message)
+        } 
+
+    }
+
 }

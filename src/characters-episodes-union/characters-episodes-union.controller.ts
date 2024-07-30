@@ -52,8 +52,14 @@ export class CharactersEpisodesUnionController {
         return this.charactersEpisodesUnionService.filterByStatus(statusName);
     }
 
+    //Endpoint que devuelve personajes y episodios segun su status
+    @Get('/filter/charecter_by_season/season')
+    filterCharacterBySeason( @Query('season') seasonName: string){
+        return this.charactersEpisodesUnionService.filterCharacterBySeason(seasonName);
+    }
+
     //Endpoint que elimina un personajes de un episodio 
-    @Delete()
+    @Delete('/delete_character_from_episode')
     deleteCharacterFromEpisode( @Body() dto: DeleteCharactersEpisodesUnionDto){
         return this.charactersEpisodesUnionService.deleteCharacterFromEpisode(dto);
     }

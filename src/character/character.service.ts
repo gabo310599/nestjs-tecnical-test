@@ -106,7 +106,16 @@ export class CharacterService {
             });
             
             if(!findCharacter) throw new HttpException("Character update denied because of failed validation", 400)
+            
+            if(dto.name){           
+
+                const findCharacterName = await this.prisma.character.findFirst({ 
+                    where: { name: dto.name, subcategoryId: dto.subcategoryId } 
+                });
                 
+                if(findCharacterName) throw new HttpException("Character name already exists in that specie and type", 400)
+                
+            }
 
             const result = await this.prisma.character.update({ 
                 where: {id}, 
